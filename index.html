@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MoodPad - A simple emoji mood journal to track your daily emotions">
+  <meta name="theme-color" content="#0f0f1a">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <title>MoodPad - Emoji Mood Journal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header animate-fade-in">
+      <h1 class="header__title">MoodPad</h1>
+      <p class="header__subtitle">Track your mood, one emoji at a time</p>
+      <p class="header__date" id="currentDate"></p>
+
+      <div class="header__controls">
+        <button class="btn btn--primary" id="exportBtn">
+          Export CSV
+        </button>
+        <button class="btn btn--secondary" id="importBtn">
+          Import
+        </button>
+        <button class="btn btn--secondary" id="demoBtn">
+          Load Demo
+        </button>
+        <button class="btn btn--secondary" id="yearReviewBtn">
+          Year Review
+        </button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <!-- Icon set by JS -->
+        </button>
+      </div>
+    </header>
+
+    <!-- Mood Picker Card -->
+    <section class="card mood-picker animate-fade-in">
+      <h2 class="card__title">
+        How are you feeling today?
+      </h2>
+
+      <div class="mood-picker__grid" id="moodGrid">
+        <!-- Mood buttons injected by JS -->
+      </div>
+
+      <textarea class="mood-picker__note" id="moodNote" placeholder="Add a note about your day... (optional)"
+        aria-label="Optional note about your mood"></textarea>
+
+      <!-- Tags Section -->
+      <div id="tagsContainer"></div>
+
+      <p class="mood-picker__saved" id="savedIndicator">Saved!</p>
+    </section>
+
+    <!-- Calendar Card -->
+    <section class="card calendar animate-fade-in">
+      <h2 class="card__title">
+        Your Mood Calendar
+      </h2>
+
+      <div class="calendar__nav">
+        <button class="calendar__nav-btn" id="prevMonth" aria-label="Previous month">&#8249;</button>
+        <span class="calendar__month" id="currentMonth"></span>
+        <button class="calendar__nav-btn" id="nextMonth" aria-label="Next month">&#8250;</button>
+      </div>
+
+      <div class="calendar__weekdays">
+        <div class="calendar__weekday">Sun</div>
+        <div class="calendar__weekday">Mon</div>
+        <div class="calendar__weekday">Tue</div>
+        <div class="calendar__weekday">Wed</div>
+        <div class="calendar__weekday">Thu</div>
+        <div class="calendar__weekday">Fri</div>
+        <div class="calendar__weekday">Sat</div>
+      </div>
+
+      <div class="calendar__grid" id="calendarGrid">
+        <!-- Calendar days injected by JS -->
+      </div>
+    </section>
+
+    <!-- Stats Card -->
+    <section class="card animate-fade-in">
+      <h2 class="card__title">
+        Your Stats
+      </h2>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-card__value stat-card__value--emoji" id="mostCommonMood">-</div>
+          <div class="stat-card__label">Most Common This Month</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card__value" id="currentStreak">0</div>
+          <div class="stat-card__label">Current Streak</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card__value" id="longestStreak">0</div>
+          <div class="stat-card__label">Longest Streak</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card__value" id="totalEntries">0</div>
+          <div class="stat-card__label">Total Entries</div>
+        </div>
+
+        <div class="stat-card trend-chart">
+          <div class="trend-chart__title">Last 30 Days Mood Trend</div>
+          <div id="trendChart">
+            <!-- Trend chart SVG injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Mood Patterns by Day -->
+      <div style="margin-top: var(--space-lg);">
+        <h3 class="card__title" style="font-size: var(--font-size-base);">Mood Patterns by Day of Week</h3>
+        <div id="patternsContainer"></div>
+      </div>
+    </section>
+
+    <!-- Insights Card -->
+    <section class="card animate-fade-in">
+      <h2 class="card__title">
+        Insights
+      </h2>
+      <div id="insightsContainer">
+        <!-- Insights injected by JS -->
+      </div>
+    </section>
+
+    <!-- Settings Card -->
+    <section class="card animate-fade-in">
+      <h2 class="card__title">
+        Settings
+      </h2>
+
+      <div class="settings-section">
+        <div class="settings-item">
+          <div>
+            <div class="settings-item__label">Daily Reminder</div>
+            <div class="settings-item__desc">Get notified at 8 PM if you haven't logged</div>
+          </div>
+          <div class="toggle-switch" id="reminderToggle" role="switch" aria-checked="false"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal for viewing mood details -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+      <div class="modal__header">
+        <h3 class="modal__title" id="modalTitle">Mood Details</h3>
+        <button class="modal__close" id="modalClose" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal__content">
+        <p id="modalDate"></p>
+        <div class="modal__emoji" id="modalEmoji"></div>
+        <div class="modal__note" id="modalNote"></div>
+        <div class="tags-container" id="modalTags" style="margin-top: var(--space-md);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Year Review Modal -->
+  <div class="modal-overlay" id="yearReviewOverlay">
+    <div class="modal year-review" role="dialog" aria-labelledby="yearReviewTitle">
+      <div class="modal__header">
+        <h3 class="modal__title" id="yearReviewTitle">Year in Review</h3>
+        <button class="modal__close" id="yearReviewClose" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal__content" id="yearReviewContent">
+        <!-- Year review content injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="importFile" accept=".csv" style="display: none;">
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
